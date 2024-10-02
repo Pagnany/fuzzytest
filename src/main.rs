@@ -10,6 +10,12 @@ struct ArtOutput {
     score: i64,
 }
 
+impl ArtOutput {
+    fn new(satz_id: String, score: i64) -> ArtOutput {
+        ArtOutput { satz_id, score }
+    }
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct ArtikelListe {
     artikel_liste: Vec<Artikel>,
@@ -22,15 +28,13 @@ struct Artikel {
     art_nr02: String,
     bezeich: String,
     merkmale: Vec<Merkmal>,
-    #[serde(skip_deserializing, default)]
-    score: i64,
 }
 
 impl Artikel {
     fn get_string(&self) -> String {
         let mut s = format!(
-            "{} {} {} {} {}",
-            self.score, self.satz_id, self.art_nr01, self.art_nr02, self.bezeich
+            "{} {} {} {}",
+            self.satz_id, self.art_nr01, self.art_nr02, self.bezeich
         );
         for m in &self.merkmale {
             s.push_str(&format!(" {} {}", m.wert, m.einheit));
@@ -112,7 +116,7 @@ fn deserde_test() {
 
     //println!("{:?}", art);
 
-    let suche = "hsse m12";
+    let suche = "zange wasser pumpe";
     let mut anz = 0;
     let mut art_out: Vec<ArtOutput> = Vec::new();
 
@@ -124,11 +128,8 @@ fn deserde_test() {
         match matcher.fuzzy_match(&art_str, suche) {
             Some(score) => {
                 anz += 1;
-                art_out.push(ArtOutput {
-                    satz_id: a.satz_id.clone(),
-                    score: score,
-                });
-                //println!("{}", art_str);
+                art_out.push(ArtOutput::new(a.satz_id.clone(), score));
+                println!("{}", art_str);
             }
             None => {}
         }
