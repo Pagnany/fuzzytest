@@ -5,13 +5,23 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct ArtOutput {
     pub satz_id: String,
+    pub bezeich: String,
     pub score: i64,
 }
 
 impl ArtOutput {
-    fn new(satz_id: String, score: i64) -> ArtOutput {
-        ArtOutput { satz_id, score }
+    fn new(satz_id: String, bezeich: String, score: i64) -> ArtOutput {
+        ArtOutput {
+            satz_id,
+            bezeich,
+            score,
+        }
     }
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct ArtInput {
+    pub search: String,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -107,7 +117,7 @@ pub fn article_search(art_list: &ArtikelListe, search: &str) -> Vec<ArtOutput> {
         let art_str = a.get_string();
         match matcher.fuzzy_match(&art_str, search) {
             Some(score) => {
-                art_out.push(ArtOutput::new(a.satz_id.clone(), score));
+                art_out.push(ArtOutput::new(a.satz_id.clone(), a.bezeich.clone(), score));
             }
             None => {}
         }
