@@ -23,9 +23,15 @@ async fn main() {
 
     // For background task
     let reload_state = Arc::clone(&shared_state);
+    let mut first_update = true;
     // Spawn a background task to reload the file every 10 minutes
     tokio::spawn(async move {
         loop {
+            if first_update {
+                first_update = false;
+            } else {
+                sleep(Duration::from_secs(60 * 10)).await;
+            }
             // Reload the JSON file
             if let Ok(data) = fs::read_to_string("./json/artikel.json") {
                 let data: String = data
@@ -43,7 +49,6 @@ async fn main() {
             } else {
                 tracing::error!("Failed to reload artikel.json");
             }
-            sleep(Duration::from_secs(5)).await;
         }
     });
 
