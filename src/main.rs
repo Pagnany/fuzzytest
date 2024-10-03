@@ -18,13 +18,10 @@ async fn main() {
     let start_time = Local::now();
 
     let art_all: article_search::ArtikelListe = Default::default();
-
     let shared_state = Arc::new(RwLock::new(art_all));
-
-    // For background task
     let reload_state = Arc::clone(&shared_state);
+
     let mut first_update = true;
-    // Spawn a background task to reload the file every 10 minutes
     tokio::spawn(async move {
         loop {
             if first_update {
@@ -32,7 +29,8 @@ async fn main() {
             } else {
                 sleep(Duration::from_secs(60 * 10)).await;
             }
-            // Reload the JSON file
+            let start_time_reload = Local::now();
+
             if let Ok(data) = fs::read_to_string("./json/artikel.json") {
                 let data: String = data
                     .chars()
@@ -41,13 +39,14 @@ async fn main() {
 
                 let artikel_list = article_search::ArtikelListe::from_json(&data);
 
-                // Update the shared state (write lock needed here)
                 let mut write_guard = reload_state.write().await;
                 *write_guard = artikel_list;
 
-                tracing::info!("--artikel.json reloaded");
+                let end_time_reload = Local::now();
+                let duration = end_time_reload.signed_duration_since(start_time_reload);
+                tracing::info!("RELOAD artikel.json took: {:?}", duration);
             } else {
-                tracing::error!("Failed to reload artikel.json");
+                tracing::error!("RELOAD Failed artikel.json");
             }
         }
     });
