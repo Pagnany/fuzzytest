@@ -1,5 +1,3 @@
-use fuzzy_matcher::skim::SkimMatcherV2;
-use fuzzy_matcher::FuzzyMatcher;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -10,7 +8,7 @@ pub struct ArtOutput {
 }
 
 impl ArtOutput {
-    fn new(satz_id: String, bezeich: String, score: i64) -> ArtOutput {
+    pub fn new(satz_id: String, bezeich: String, score: i64) -> ArtOutput {
         ArtOutput {
             satz_id,
             bezeich,
@@ -37,92 +35,66 @@ impl ArtikelListe {
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Artikel {
-    satz_id: String,
-    art_nr01: String,
-    art_nr02: String,
-    bezeich: String,
-    merkmale: Vec<Merkmal>,
+    pub satz_id: String,
+    pub art_nr01: String,
+    pub art_nr02: String,
+    pub bezeich01: String,
+    pub bezeich02: String,
+    pub bezeich03: String,
+    pub bezeich04: String,
+    pub match01: String,
+    pub match02: String,
+    pub farbcode: String,
+    pub abmessung: String,
+    pub gewicht: String,
+    pub sn: String,
+    pub diniso: String,
+    pub gtyp: String,
+    pub katbest01: String,
+    pub ean_code: String,
+    pub merkmale: Vec<Merkmal>,
 }
 
 impl Artikel {
-    fn get_string(&self) -> String {
+    pub fn get_string(&self) -> String {
         let mut s = format!(
-            "{} {} {} {}",
-            self.satz_id, self.art_nr01, self.art_nr02, self.bezeich
+            "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}",
+            self.bezeich01,
+            self.bezeich02,
+            self.bezeich03,
+            self.bezeich04,
+            self.match01,
+            self.match02,
+            self.farbcode,
+            self.abmessung,
+            self.gewicht,
+            self.sn,
+            self.diniso,
+            self.gtyp,
+            self.art_nr01,
+            self.art_nr02,
+            self.katbest01,
+            self.ean_code,
+            self.satz_id,
         );
         for m in &self.merkmale {
             s.push_str(&format!(" {} {}", m.wert, m.einheit));
         }
         s
     }
+
+    pub fn get_string_merkmal(&self) -> String {
+        let mut s = String::new();
+        for m in &self.merkmale {
+            s.push_str(&format!("{} {}", m.wert, m.einheit));
+        }
+        s
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct Merkmal {
-    merkmal: String,
-    wert: String,
-    einheit: String,
-}
-
-/// Input Format
-/// ```
-/// let json_string = r#"
-/// {
-///    "artikel_liste": [
-///        {
-///            "satz_id": "SATZ91239812",
-///            "art_nr01": "e123",
-///            "art_nr02": "e969696",
-///            "bezeich": "Zange",
-///            "merkmale": [
-///                {
-///                    "merkmal": "Größe",
-///                    "wert": "15",
-///                    "einheit": "mm"
-///                },
-///                {
-///                    "merkmal": "Gewicht",
-///                    "wert": "0.1",
-///                    "einheit": "KG"
-///                }
-///            ]
-///        },
-///        {
-///            "satz_id": "SATZ91239812",
-///            "art_nr01": "e123",
-///            "art_nr02": "e969696",
-///            "bezeich": "Zange",
-///            "merkmale": [
-///                {
-///                    "merkmal": "Größe",
-///                    "wert": "15",
-///                    "einheit": "mm"
-///                },
-///                {
-///                    "merkmal": "Gewicht",
-///                    "wert": "0.1",
-///                    "einheit": "KG"
-///                }
-///            ]
-///        }
-///    ]
-/// }
-/// "#;
-/// ```
-pub fn article_search(art_list: &ArtikelListe, search: &str) -> Vec<ArtOutput> {
-    let mut art_out: Vec<ArtOutput> = Vec::new();
-
-    let matcher = SkimMatcherV2::default();
-    for a in &art_list.artikel_liste {
-        let art_str = a.get_string();
-        match matcher.fuzzy_match(&art_str, search) {
-            Some(score) => {
-                art_out.push(ArtOutput::new(a.satz_id.clone(), a.bezeich.clone(), score));
-            }
-            None => {}
-        }
-    }
-
-    art_out.sort_by(|a, b| b.score.cmp(&a.score));
-    art_out
+pub struct Merkmal {
+    pub merkmal: String,
+    pub wert: String,
+    pub einheit: String,
 }
