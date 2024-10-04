@@ -28,8 +28,8 @@ pub struct ArtikelListe {
 }
 
 impl ArtikelListe {
-    pub fn from_json(json_string: &str) -> ArtikelListe {
-        serde_json::from_str(json_string).unwrap()
+    pub fn from_json(json_string: &str) -> Result<ArtikelListe, serde_json::Error> {
+        serde_json::from_str(json_string)
     }
 }
 
@@ -83,12 +83,16 @@ impl Artikel {
         s
     }
 
-    pub fn get_string_merkmal(&self) -> String {
+    pub fn get_string_merkmale(&self) -> String {
         let mut s = String::new();
         for m in &self.merkmale {
-            s.push_str(&format!("{} {}", m.wert, m.einheit));
+            s.push_str(&format!("{} {} ", m.wert, m.einheit));
         }
         s
+    }
+
+    pub fn get_string_matchcode(&self) -> String {
+        format!("{} {}", self.match01, self.match02)
     }
 }
 
